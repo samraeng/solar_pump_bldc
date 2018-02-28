@@ -329,41 +329,6 @@ void getspeed(void)
   }
 
 }
-void chk_unbreak(void)
-{ pdc1= pdc2= pdc3=0;
-  delay_ms(100);
-  while(!E8)
-  {  OVDCON=TABLE_FW[0];
-   OUTPUT_TOGGLE(PIN_B2);
-   DELAY_MS(100);
-  }
- // pdc1= pdc2= pdc3= 0;
-  while(flg_bk)
-  { 
-
-
-        OVDCON=TABLE_FW[0];
-        if(n>10000)
-        {
-         OUTPUT_toggle(PIN_B2);
-         n=0;
-        }
-            if(duty<50)
-            {
-             flg_bk=0;             
-             
-            }
-             set_adc_channel( 0 );
-             delay_us(10);
-             duty = read_adc();
-        //...
-     //=======
-  }
-pdc1= pdc2= pdc3= 0;
-
-
-
-}
 
 VOID ROTATE_FW(VOID)
 {
