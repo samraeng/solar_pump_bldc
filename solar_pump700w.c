@@ -286,36 +286,21 @@ void main(void)
   while(true)
 {
 
-CHK_CPU++;
 
+///////////////////////////////read analog for adjust speed///////////////////
 set_adc_channel( 0 );
 delay_us(10);
 duty = read_adc();
 if(duty < 50 ) duty = 50;
 getspeed();
-
+//////////////////////////// check status cup //////////////////////////
    n++;
    if(n>5000)
    {
    OUTPUT_toggle(PIN_d1);
    n=0;
    }
-    /* if(!E8)
-    {
-     flg_bk=1;chk_unbreak();
-    }
-
-    if(!E8)
-    {
-     flg_bk=1;chk_unbreak();
-    }
-    
-    IF(CHK_CPU>1000){
-    CHK_CPU=0;
-    output_toggle(pin_d1);
-    }*/
-   
-   // delay_ms(300);
+///////////////////////////////////////////////////////////////////////
  
  }
 
