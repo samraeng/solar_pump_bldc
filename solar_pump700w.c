@@ -181,9 +181,9 @@ VOID ROTATE_RW(VOID);
 void  CNI_isr(void) 
 {
 
- if(D0==1)ROTATE_FW();
+ROTATE_FW();
  
- IF(D0==0)ROTATE_RW();
+//ROTATE_RW();
 
 }
 
