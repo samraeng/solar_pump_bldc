@@ -8,7 +8,7 @@
 #Fuses NOWDT
 #Fuses XT_PLL8
 #Fuses  BROWNOUT
-#Fuses  MCLR 
+#Fuses  noMCLR 
 #Fuses  PUT64
 #Fuses  NOWDT
 #fuses WPSB10
@@ -267,7 +267,7 @@ void main(void)
   OVDCON=TABLE_FW[0];
   WHILE(N<10)
   {
-   OUTPUT_TOGGLE(PIN_B2);
+   OUTPUT_TOGGLE(PIN_d1);
    DELAY_MS(100);
    N++;
   }
@@ -295,7 +295,7 @@ if(duty < 50 ) duty = 50;
 getspeed();
 //////////////////////////// check status cup //////////////////////////
    n++;
-   if(n>5000)
+   if(n>1000)
    {
    OUTPUT_toggle(PIN_d1);
    n=0;
@@ -320,6 +320,7 @@ void getspeed(void)
    speed1=1000*duty;
    speed1-= 50000;
    speed1/=169;
+   if(speed1>900)speed1=900;
    speed2=speed1; 
    pdc1= pdc2= pdc3=speed2; 
   }
