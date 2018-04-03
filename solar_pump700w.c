@@ -170,6 +170,8 @@ int16 chk_cpu=0;
 int32 duty ;
 int16 speed2;
 
+int1 flg_int_cni=0;
+
 int1 flg_bk;
 int32 speed1;
 void getspeed(void);
@@ -183,6 +185,7 @@ void  CNI_isr(void)
 
 ROTATE_FW();
  
+flg_int_cni=1; 
 //ROTATE_RW();
 
 }
@@ -332,10 +335,12 @@ void getspeed(void)
 }
 
 VOID ROTATE_FW(VOID)
-{
+{flg_int_cni=0;
 INDEX=hall_data.data;
-DELAY_US(10);
-OVDCON=TABLE_FW[INDEX];
+//DELAY_US(10);
+
+while(!flg_int_cni){OVDCON=TABLE_FW[INDEX];}
+
 }
 
 VOID ROTATE_RW(VOID)
