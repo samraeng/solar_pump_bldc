@@ -183,10 +183,24 @@ VOID ROTATE_RW(VOID);
 void  CNI_isr(void) 
 {
 
-ROTATE_FW();
+//ROTATE_FW();
  
 flg_int_cni=1; 
 //ROTATE_RW();
+
+}
+#INT_TIMER1
+void  timer1_isr(void) 
+{
+set_adc_channel( 0 );
+delay_us(10);
+duty = read_adc();
+ if(duty < 50 ) duty = 50;
+getspeed();set_timer1(100);
+
+
+///////////////////status cpu//////////////
+
 
 }
 
@@ -252,11 +266,12 @@ void main(void)
   SETUP_ADC_PORTS(sAN0|VSS_VDD );
   SETUP_ADC(ADC_CLOCK_INTERNAL);
   enable_interrupts(INTR_GLOBAL);
-  DISable_interrupts(INT_TIMER1);
+  enable_interrupts(INT_TIMER1);
   disable_interrupts(INT_RDA);
   enable_interrupts(INTR_CN_PIN|PIN_B3);
   enable_interrupts(INTR_CN_PIN|PIN_B4);
   enable_interrupts(INTR_CN_PIN|PIN_B5 );
+ 
   set_timer1(500);
   //=====================SET TIMER23 32 BIT=======
 
@@ -291,20 +306,20 @@ void main(void)
 
 
 ///////////////////////////////read analog for adjust speed///////////////////
-set_adc_channel( 0 );
-delay_us(10);
-duty = read_adc();
-if(duty < 50 ) duty = 50;
-getspeed();
+//set_adc_channel( 0 );
+//delay_us(10);
+//duty = read_adc();
+// if(duty < 50 ) duty = 50;
+//getspeed();
 //////////////////////////// check status cup //////////////////////////
    n++;
-   if(n>1000)
+   if(n>50000)
    {
    OUTPUT_toggle(PIN_d1);
    n=0;
    }
 ///////////////////////////////////////////////////////////////////////
- 
+ if(flg_int_cni)ROTATE_FW();
  }
 
    
@@ -339,7 +354,9 @@ VOID ROTATE_FW(VOID)
 INDEX=hall_data.data;
 //DELAY_US(10);
 
-while(!flg_int_cni){OVDCON=TABLE_FW[INDEX];}
+//OVDCON=TABLE_FW[INDEX];
+
+while(!flg_int_cni){OVDCON=TABLE_FW[INDEX];OUTPUT_low(PIN_d1);}
 
 }
 
@@ -349,3 +366,5 @@ INDEX=hall_data.data;
 DELAY_US(10);
 OVDCON=TABLE_RW[INDEX];
 }
+
+
