@@ -319,7 +319,9 @@ void main(void)
    n=0;
    }
 ///////////////////////////////////////////////////////////////////////
- if(flg_int_cni)ROTATE_FW();
+// if(flg_int_cni)ROTATE_FW();
+   if(flg_int_cni)ROTATE_RW();
+
  }
 
    
@@ -362,9 +364,11 @@ while(!flg_int_cni){OVDCON=TABLE_FW[INDEX];OUTPUT_low(PIN_d1);}
 
 VOID ROTATE_RW(VOID)
 {
+flg_int_cni=0;
 INDEX=hall_data.data;
-DELAY_US(10);
-OVDCON=TABLE_RW[INDEX];
+//DELAY_US(10);
+//OVDCON=TABLE_RW[INDEX];
+while(!flg_int_cni){OVDCON=TABLE_RW[INDEX];OUTPUT_low(PIN_d1);}
 }
 
 
