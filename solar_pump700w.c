@@ -223,7 +223,7 @@ void main(void)
   PTSIDL=0; 
   //===========PTMOD0 AND PTMOD1 FOR SELECT MODE PWM
   ptmod0=0;    // 00 Free Running mode
-  ptmod1=0;    // 01  Single-shot mode
+  ptmod1=1;    // 01  Single-shot mode
                // 10  Continuous Up/Down Counting mode.
                // 11   Continuous Up/Down mode with interrupts for double PWM
   //============PTCKPS0 AND PTCKPS1 BIT FOR PTMR PRESCALE
@@ -319,8 +319,8 @@ void main(void)
    n=0;
    }
 ///////////////////////////////////////////////////////////////////////
-// if(flg_int_cni)ROTATE_FW();
-   if(flg_int_cni)ROTATE_RW();
+  if(flg_int_cni)ROTATE_FW();
+   //if(flg_int_cni)ROTATE_rW();
 
  }
 
