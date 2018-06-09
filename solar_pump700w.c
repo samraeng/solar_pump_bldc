@@ -3,7 +3,7 @@
 
 
 #include <30F2010.h>
-#device adc=8
+#device adc=10
 //#Fuses  HS
 #Fuses NOWDT
 #Fuses XT_PLL8
@@ -32,11 +32,19 @@ struct sensor{
 }hall_data;
 
 #locate hall_data=0x02C8
+
 #LOCATE TRISE =0X02D8
-#BIT    TRIS_E8=TRISE.8 
+#BIT    TRIS_E8=TRISE.8
 
 #LOCATE PORTE = 0X2DA
 #BIT    E8 = PORTE.8
+
+int16 TRISC;
+#LOCATE TRISC =0X02CC
+#BIT    TRIS_C13 =TRISC.13
+INT16 PORTC;
+#LOCATE PORTC = 0X2CE
+#BIT STOP = PORTC.13
 
 INT16 TRISD;
 #LOCATE TRISD = 0X02D2
@@ -167,7 +175,7 @@ int32 n;
 
 int16 chk_cpu=0;
 
-int32 duty ;
+int16 duty ;
 int16 speed2;
 
 int1 flg_int_cni=0;
@@ -195,8 +203,12 @@ void  timer1_isr(void)
 set_adc_channel( 0 );
 delay_us(10);
 duty = read_adc();
- if(duty < 50 ) duty = 50;
-getspeed();set_timer1(100);
+
+//if(duty>200)duty=200;
+// if(duty < 50 ) duty = 50;
+//if(duty>50 && duty<200) 
+getspeed();
+set_timer1(100);
 
 
 ///////////////////status cpu//////////////
@@ -206,7 +218,9 @@ getspeed();set_timer1(100);
 
 
 void main(void)
-{ setup_wdt (WDT_OFF);
+{ 
+  TRIS_C13=1;
+ setup_wdt (WDT_OFF);
   flg_t4=0;
   //trisb=0x000f;
   TRIS_E8=1;
@@ -301,10 +315,14 @@ void main(void)
    
    // fltaif=0;
    // FLTACON=0XFF07;
-  while(true)
-{
-
-
+   while(true)
+   {
+      if(STOP==0)
+      {
+         OVDCON=TABLE_FW[0];
+      }
+      else
+      {
 ///////////////////////////////read analog for adjust speed///////////////////
 //set_adc_channel( 0 );
 //delay_us(10);
@@ -321,7 +339,15 @@ void main(void)
 ///////////////////////////////////////////////////////////////////////
  if(flg_int_cni)ROTATE_FW();
  }
-
+ 
+   n++;
+   if(n>50000)
+   {
+   OUTPUT_toggle(PIN_d1);
+   n=0;
+   } 
+ 
+   }
    
 
   
@@ -335,12 +361,12 @@ void getspeed(void)
   IF(!FLG_BK)
   {
    
-   speed1=1000*duty;
-   speed1-= 50000;
-   speed1/=169;
-   if(speed1>900)speed1=900;
-   speed2=speed1; 
-   pdc1= pdc2= pdc3=speed2; 
+  // speed1=1000*duty;
+  // speed1-= 50000;
+  // speed1/=169;
+  // if(speed1>900)speed1=900;
+  // speed2=speed1; 
+   pdc1= pdc2= pdc3=duty; 
   }
   ELSE
   {
@@ -361,10 +387,11 @@ while(!flg_int_cni){OVDCON=TABLE_FW[INDEX];OUTPUT_low(PIN_d1);}
 }
 
 VOID ROTATE_RW(VOID)
-{
+{flg_int_cni=0;
 INDEX=hall_data.data;
-DELAY_US(10);
+//DELAY_US(10);
 OVDCON=TABLE_RW[INDEX];
+while(!flg_int_cni){OVDCON=TABLE_RW[INDEX];OUTPUT_low(PIN_d1);}
 }
 
 
