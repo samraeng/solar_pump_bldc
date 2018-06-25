@@ -75,7 +75,7 @@ INT16 PTMR;
 #LOCATE  PTMR = 0X1C2
 
 //-----------------------------------
-INT16 PTPER;
+signed INT16 PTPER;
 #LOCATE PTPER = 0X1C4
 
 //-----------------------------------
@@ -203,12 +203,12 @@ void  timer1_isr(void)
 //set_adc_channel( 0 );
 //delay_us(10);
 //duty = read_adc();
-//if(duty<100)duty=100;
+//if(duty<40)duty=40;
 
 //if(duty>200)duty=200;
 // if(duty < 50 ) duty = 50;
 //if(duty>50 && duty<200) 
-//getspeed();
+getspeed();
 set_timer1(100);
 
 
@@ -226,7 +226,7 @@ void main(void)
   //trisb=0x000f;
   TRIS_E8=1;
   trisb3=trisb4=trisb5=1;
-  ptper=0x01F4;
+  ptper=0x2f0;
   SEVTCMP=ptper;
   ptmr=0x0000;
   //===============PMOD3(PWM3 MODE) PMDO2(PWM2MODE) AND PMOD1(PWM1MODE) FOR SELECT COMPLEMENTARY OR Independent mode
@@ -238,12 +238,12 @@ void main(void)
   PTSIDL=0; 
   //===========PTMOD0 AND PTMOD1 FOR SELECT MODE PWM
   ptmod0=0;    // 00 Free Running mode
-  ptmod1=0;    // 01  Single-shot mode
+  ptmod1=1;    // 01  Single-shot mode
                // 10  Continuous Up/Down Counting mode.
                // 11   Continuous Up/Down mode with interrupts for double PWM
   //============PTCKPS0 AND PTCKPS1 BIT FOR PTMR PRESCALE
-  ptckps0=0;   // 00 (1:1 prescale)
-  ptckps1=1;   // 01 (1:4 prescale) 
+  ptckps0=1;   // 00 (1:1 prescale)
+  ptckps1=0;   // 01 (1:4 prescale) 
                // 10 (1:16 prescale)
                // 11 (1:64 prescale)  
   //============PENxh PENxl for enable pwmoutput===============
@@ -281,7 +281,7 @@ void main(void)
   SETUP_ADC_PORTS(sAN0|VSS_VDD );
   SETUP_ADC(ADC_CLOCK_INTERNAL);
   enable_interrupts(INTR_GLOBAL);
-  disable_interrupts(INT_TIMER1);
+  enable_interrupts(INT_TIMER1);
   disable_interrupts(INT_RDA);
   enable_interrupts(INTR_CN_PIN|PIN_B3);
   enable_interrupts(INTR_CN_PIN|PIN_B4);
@@ -320,11 +320,11 @@ void main(void)
    {
 
 ///////////////////////////////read analog for adjust speed///////////////////
-set_adc_channel( 0 );
-delay_us(10);
-duty = read_adc();
- if(duty < 30 ) duty = 30;
-getspeed();
+//set_adc_channel( 0 );
+//delay_us(10);
+//duty = read_adc();
+// if(duty < 30 ) duty = 30;
+//getspeed();
 //////////////////////////// check status cup //////////////////////////
    n++;
    if(n>50000)
@@ -362,12 +362,13 @@ void getspeed(void)
   IF(!FLG_BK)
   {
    
-  // speed1=1000*duty;
-  // speed1-= 50000;
-  // speed1/=169;
-  // if(speed1>900)speed1=900;
-  // speed2=speed1; 
-   pdc1= pdc2= pdc3=duty; 
+    set_adc_channel( 0 );
+    delay_us(10);
+    duty = read_adc();
+    if(duty<40)duty=40;
+    if(duty>600)duty=600;
+    
+    pdc1= pdc2= pdc3=duty; 
   }
   ELSE
   {
