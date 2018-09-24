@@ -44,7 +44,7 @@ int16 TRISC;
 #BIT    TRIS_C13 =TRISC.13
 INT16 PORTC;
 #LOCATE PORTC = 0X2CE
-#BIT STOP = PORTC.13
+#BIT direct = PORTC.13
 
 INT16 TRISD;
 #LOCATE TRISD = 0X02D2
@@ -52,7 +52,7 @@ INT16 TRISD;
 
 INT16 PORTD;
 #LOCATE PORTD = 0X02D4
-#BIT D0 = PORTD.0
+#BIT reset_break = PORTD.0
 
 int16 PTCON; 
 #locate PTCON = 0x1C0 
@@ -180,12 +180,14 @@ int16 speed2;
 
 int1 flg_int_cni=0;
 
-int1 flg_bk;
+int1 flg_bk=0;
+int1 flg_dir=0;
 int32 speed1;
 void getspeed(void);
 void chk_unbreak(void);
 VOID ROTATE_FW(VOID);
 VOID ROTATE_RW(VOID);
+void func_break(void);
 
 #int_CNI
 void  CNI_isr(void) 
@@ -305,29 +307,24 @@ void main(void)
    
    
    TRISD0=1;
-   
+   TRIS_C13=1;   
    
     fltaif=0;
     FLTACON=0XFF07;
    while(true)
    {
 
-///////////////////////////////read analog for adjust speed///////////////////
-//set_adc_channel( 0 );
-//delay_us(10);
-//duty = read_adc();
-// if(duty < 30 ) duty = 30;
-//getspeed();
-//////////////////////////// check status cup //////////////////////////
-   n++;
-   if(n>50000)
-   {
-   OUTPUT_toggle(PIN_d1);
-   n=0;
-   }
+
 ///////////////////////////////////////////////////////////////////////
- if(flg_int_cni)ROTATE_rW();
- 
+ if(flg_int_cni&&flg_dir==1)
+ {
+ ROTATE_fW();
+ }
+ else
+ {
+ ROTATE_rW();
+ }
+ //if(flg_int_cni&&flg_dir==0)ROTATE_rW();
  
    n++;
    if(n>50000)
@@ -335,7 +332,8 @@ void main(void)
    OUTPUT_toggle(PIN_d1);
    n=0;
    }
- 
+////////////////////////////program go to function break////////////////
+  if(fltaif)func_break();
  
  }
  
@@ -352,9 +350,7 @@ void main(void)
 void getspeed(void)
 {
 
-  IF(!FLG_BK)
-  {
-   
+  
     set_adc_channel( 0 );
     delay_us(10);
     duty = read_adc();
@@ -362,11 +358,8 @@ void getspeed(void)
     if(duty>500)duty=500;
     
     pdc1= pdc2= pdc3=duty; 
-  }
-  ELSE
-  {
-  pdc1= pdc2= pdc3=0;
-  }
+  
+ 
 
 }
 
@@ -377,7 +370,7 @@ INDEX=hall_data.data;
 
 //OVDCON=TABLE_FW[INDEX];
 
-while(!flg_int_cni){OVDCON=TABLE_FW[INDEX];OUTPUT_low(PIN_d1);}
+while(!flg_int_cni&&e8){OVDCON=TABLE_FW[INDEX];OUTPUT_low(PIN_d1);}
 
 }
 
@@ -386,7 +379,40 @@ VOID ROTATE_RW(VOID)
 INDEX=hall_data.data;
 //DELAY_US(10);
 //OVDCON=TABLE_RW[INDEX];
-while(!flg_int_cni){OVDCON=TABLE_RW[INDEX];OUTPUT_low(PIN_d1);}
+while(!flg_int_cni&&e8){OVDCON=TABLE_RW[INDEX];OUTPUT_low(PIN_d1);}
 }
 
+void func_break(void)
+{    pdc1= pdc2= pdc3=0;
+     disable_interrupts(INTR_CN_PIN|PIN_B3);
+     disable_interrupts(INTR_CN_PIN|PIN_B4);
+     disable_interrupts(INTR_CN_PIN|PIN_B5 );
+     disable_interrupts(INT_TIMER1);
+   while(fltaif)
+   { output_toggle(pin_d1);delay_ms(300);
+     if(direct==0)flg_dir=0;
+     if(direct==1)flg_dir=1;
+     if(reset_break==0)fltaif=0;
+   }
+   
+   
+   
+    set_adc_channel( 0 );
+    delay_us(10);
+    duty = read_adc();
+    duty = 50;
+    while(duty>40)
+    {
+    output_toggle(pin_d1);delay_ms(100);
+    set_adc_channel( 0 );
+    delay_us(10);
+    duty = read_adc();
+    }
 
+    
+   enable_interrupts(INTR_CN_PIN|PIN_B3);
+   enable_interrupts(INTR_CN_PIN|PIN_B4);
+   enable_interrupts(INTR_CN_PIN|PIN_B5 );
+   enable_interrupts(INT_TIMER1);    
+    
+}
