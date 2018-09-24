@@ -326,7 +326,7 @@ void main(void)
    n=0;
    }
 ///////////////////////////////////////////////////////////////////////
- if(flg_int_cni)ROTATE_fW();
+ if(flg_int_cni)ROTATE_rW();
  
  
    n++;
