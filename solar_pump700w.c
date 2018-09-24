@@ -307,8 +307,8 @@ void main(void)
    TRISD0=1;
    
    
-   // fltaif=0;
-   // FLTACON=0XFF07;
+    fltaif=0;
+    FLTACON=0XFF07;
    while(true)
    {
 
