@@ -200,14 +200,7 @@ flg_int_cni=1;
 #INT_TIMER1
 void  timer1_isr(void) 
 {
-//set_adc_channel( 0 );
-//delay_us(10);
-//duty = read_adc();
-//if(duty<40)duty=40;
 
-//if(duty>200)duty=200;
-// if(duty < 50 ) duty = 50;
-//if(duty>50 && duty<200) 
 getspeed();
 set_timer1(100);
 
@@ -333,7 +326,7 @@ void main(void)
    n=0;
    }
 ///////////////////////////////////////////////////////////////////////
- if(flg_int_cni)ROTATE_FW();
+ if(flg_int_cni)ROTATE_fW();
  
  
    n++;
@@ -366,7 +359,7 @@ void getspeed(void)
     delay_us(10);
     duty = read_adc();
     if(duty<40)duty=40;
-    if(duty>600)duty=600;
+    if(duty>500)duty=500;
     
     pdc1= pdc2= pdc3=duty; 
   }
@@ -392,7 +385,7 @@ VOID ROTATE_RW(VOID)
 {flg_int_cni=0;
 INDEX=hall_data.data;
 //DELAY_US(10);
-OVDCON=TABLE_RW[INDEX];
+//OVDCON=TABLE_RW[INDEX];
 while(!flg_int_cni){OVDCON=TABLE_RW[INDEX];OUTPUT_low(PIN_d1);}
 }
 
